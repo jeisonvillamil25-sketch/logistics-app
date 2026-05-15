@@ -5,8 +5,12 @@ from ortools.constraint_solver import routing_enums_pb2
 from ortools.constraint_solver import pywrapcp
 import urllib.parse
 
-API_KEY = "GOOGLE_MAPS_API_KEY"
-gmaps = googlemaps.Client(key=API_KEY)
+import os
+import googlemaps
+
+gmaps = googlemaps.Client(
+    key=os.getenv("GOOGLE_MAPS_API_KEY")
+)
 
 # 🔧 convertir hora a minutos
 def convert_time_to_minutes(time_obj):
