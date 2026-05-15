@@ -1,0 +1,8 @@
+streamlit
+pandas
+googlemaps
+ortools
+folium
+streamlit-folium
+reportlab
+openpyxl
