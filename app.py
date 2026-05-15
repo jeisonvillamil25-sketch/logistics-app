@@ -27,7 +27,8 @@ st.set_page_config(
     layout="wide"
 )
 
-gmaps = googlemaps.Client(key="GOOGLE_MAPS_API_KEY")
+import os
+gmaps = googlemaps.Client(key=os.getenv("GOOGLE_MAPS_API_KEY"))
 
 # ==============================
 # 3. SESSION STATE
