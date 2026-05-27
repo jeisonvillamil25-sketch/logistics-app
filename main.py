@@ -39,16 +39,7 @@ def load_data(file_name):
 
 # 🚀 matriz
 def get_distance_matrix(addresses):
-    try:
-        matrix = gmaps.distance_matrix(
-        addresses,
-        addresses,
-        mode="driving"
-    )
-
-    except Exception as e:
-        print("ERROR GOOGLE:", e)
-        raise e
+    matrix = gmaps.distance_matrix(addresses, addresses, mode="driving")
     distances = []
     for row in matrix['rows']:
         row_distances = []
