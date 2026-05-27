@@ -148,112 +148,134 @@ st.title("🚚 Optimización de Rutas")
 # ==============================
 # 9. LÓGICA
 # ==============================
+# ==============================
+# CARGAR DATOS
+# ==============================
 FILE_PATH = "clientes.xlsx"
-
-df = pd.read_excel(FILE_PATH)
 
 if uploaded_file:
     df = pd.read_excel(uploaded_file)
     df.to_excel(FILE_PATH, index=False)
     st.success("Clientes actualizados")
-    #st.write("📊 DATA REAL:")
-    #st.dataframe(df)
 
-    #st.write("📊 COLUMNA DIA:")
-    #st.write(df["dia"])
-    df.columns = df.columns.str.strip().str.lower()
-    df = df.rename(columns={
+if os.path.exists(FILE_PATH):
+    df = pd.read_excel(FILE_PATH)
+else:
+    st.warning("⚠️ No existe clientes.xlsx")
+    st.stop()
+
+# ==============================
+# LIMPIAR COLUMNAS
+# ==============================
+df.columns = df.columns.str.strip().str.lower()
+
+df = df.rename(columns={
     "día": "dia",
     "días": "dia",
     "day": "dia"
 })
-    df = df.loc[:, ~df.columns.duplicated()]
 
-    df["hora inicio"] = pd.to_datetime(df["hora inicio"], format="%H:%M:%S", errors="coerce")
-    df["hora fin"] = pd.to_datetime(df["hora fin"], format="%H:%M:%S", errors="coerce")
-    
-    st.write("ANTES DROP:", len(df))
-    #df = df.dropna(subset=["hora inicio", "hora fin"])
-    st.write("DESPUES DROP:", len(df))
-    # VALIDAR COLUMNA DIA
-# -------------------------------
-    if "dia" not in df.columns:
-        st.error("❌ El archivo no tiene columna 'dia'")
-        st.stop()
+df = df.loc[:, ~df.columns.duplicated()]
 
-# -------------------------------
+# ==============================
+# VALIDAR
+# ==============================
+if "dia" not in df.columns:
+    st.error("❌ Falta columna dia")
+    st.stop()
+
+# ==============================
 # LIMPIAR TEXTO
-# -------------------------------
-    df["dia"] = (
-       df["dia"]
-       .astype(str)
-        .str.strip()
-        .str.lower()
-)
-    
-    
-    # quitar tildes
-    import unicodedata
+# ==============================
+import unicodedata
 
-    def limpiar_texto(texto):
-        texto = str(texto)
-        texto = texto.strip().lower()
-        texto = ''.join(
-            c for c in unicodedata.normalize('NFD', texto)
-            if unicodedata.category(c) != 'Mn'
+def limpiar_texto(texto):
+    texto = str(texto).strip().lower()
+
+    texto = ''.join(
+        c for c in unicodedata.normalize('NFD', texto)
+        if unicodedata.category(c) != 'Mn'
     )
-        return texto
 
-    df["dia"] = df["dia"].apply(limpiar_texto)
+    return texto
 
+df["dia"] = df["dia"].apply(limpiar_texto)
 
-    df = df.dropna(subset=["dia"])
+# ==============================
+# HORAS
+# ==============================
+df["hora inicio"] = pd.to_datetime(
+    df["hora inicio"],
+    errors="coerce"
+)
 
-# -------------------------------
-# OBTENER DÍAS
-# -------------------------------
-    dias = df["dia"].dropna().unique()
+df["hora fin"] = pd.to_datetime(
+    df["hora fin"],
+    errors="coerce"
+)
 
-    st.write("📊 DÍAS DETECTADOS:", dias)
+# ==============================
+# DÍAS
+# ==============================
+dias = df["dia"].dropna().unique()
 
-    if len(dias) == 0:
-        st.warning("⚠️ No hay días válidos en el archivo")
-        st.stop()
+if len(dias) == 0:
+    st.warning("⚠️ No hay días válidos")
+    st.stop()
 
-# -------------------------------
-# SELECT
-# -------------------------------
-    df["dia"] = df["dia"].astype(str).str.strip().str.lower()
+dia_seleccionado = st.selectbox(
+    "📅 Selecciona el día",
+    dias
+)
 
-    dias = df["dia"].unique()
-    
-    dia_seleccionado = st.selectbox("Selecciona el día", dias)
+df_dia = df[df["dia"] == dia_seleccionado]
 
-    df_dia = df[df["dia"] == dia_seleccionado]
+# ==============================
+# LOCATIONS
+# ==============================
+locations = df_dia["direccion"].tolist()
 
-    locations = df_dia["direccion"].tolist()
+MAX_CLIENTES = 5
+locations = locations[:MAX_CLIENTES]
 
-    time_windows = []
-    for i in range(len(df_dia)):
-        start = convert_time_to_minutes(df_dia.iloc[i]["hora inicio"])
-        end = convert_time_to_minutes(df_dia.iloc[i]["hora fin"])
-        time_windows.append((start, end))
+warehouse = "51 Nelson Rd, Yennora NSW 2161, Australia"
 
-    warehouse = "51 Nelson Rd, Yennora NSW 2161, Australia"
-    locations = [warehouse] + locations
-    time_windows = [(0, 1440)] + time_windows
+locations = [warehouse] + locations
 
-    if optimizar:
-        st.success("✅ Rutas optimizadas correctamente")
-        st.session_state.optimizado = True
+# ==============================
+# TIME WINDOWS
+# ==============================
+time_windows = [(0, 1440)]
 
-    if st.session_state.optimizado:
-        distance_matrix = get_distance_matrix(locations)
-        routes = optimize_routes(distance_matrix, time_windows, num_vehicles)
+for i in range(len(df_dia[:MAX_CLIENTES])):
+    start = convert_time_to_minutes(
+        df_dia.iloc[i]["hora inicio"]
+    )
 
-        st.session_state.routes = routes
-        st.session_state.locations = locations
-        st.session_state.distance_matrix = distance_matrix
+    end = convert_time_to_minutes(
+        df_dia.iloc[i]["hora fin"]
+    )
+
+    time_windows.append((start, end))
+
+# ==============================
+# OPTIMIZAR
+# ==============================
+if optimizar:
+
+    st.success("✅ Rutas optimizadas correctamente")
+
+    distance_matrix = get_distance_matrix(locations)
+
+    routes = optimize_routes(
+        distance_matrix,
+        time_windows,
+        num_vehicles
+    )
+
+    st.session_state.routes = routes
+    st.session_state.locations = locations
+    st.session_state.distance_matrix = distance_matrix
 
 # ==============================
 # 10. RESUMEN
