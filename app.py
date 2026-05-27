@@ -242,18 +242,20 @@ if uploaded_file:
         start = convert_time_to_minutes(df_dia.iloc[i]["hora inicio"])
         end = convert_time_to_minutes(df_dia.iloc[i]["hora fin"])
         time_windows.append((start, end))
-
+    if len(df_dia) > MAX_CLIENTES:
+        st.warning(f"⚠️ Solo se procesarán {MAX_CLIENTES} clientes")
     warehouse = "51 Nelson Rd, Yennora NSW 2161, Australia"
     locations = [warehouse] + locations
     time_windows = [(0, 1440)] + time_windows
     
-    if len(df_dia) > MAX_CLIENTES:
-        st.warning(f"⚠️ Solo se procesarán {MAX_CLIENTES} clientes")
+    
     if optimizar:
         st.success("✅ Rutas optimizadas correctamente")
         st.session_state.optimizado = True
 
     if st.session_state.optimizado:
+        st.write("TOTAL LOCATIONS:", len(locations))
+        st.write(locations)
         distance_matrix = get_distance_matrix(locations)
         routes = optimize_routes(distance_matrix, time_windows, num_vehicles)
 
