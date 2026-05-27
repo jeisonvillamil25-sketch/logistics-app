@@ -44,7 +44,7 @@ if "optimizado" not in st.session_state:
 # ==============================
 USERS = {
     "admin": "1234",
-    "jeison": "ruta2026"
+    "tierraslatinas": "ruta2026"
 }
 
 def login():
@@ -69,8 +69,17 @@ if not st.session_state.logged:
 # ==============================
 st.markdown("""
 <style>
-.main {background-color: #f7f9fc;}
-.block-container {padding-top: 2rem;}
+.main {
+    background-color: #f8fafc;
+}
+h1, h2, h3 {
+    color: #1f2937;
+}
+.stButton button {
+    background-color: #2563eb;
+    color: white;
+    border-radius: 8px;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -127,8 +136,8 @@ def generate_pdf(routes, locations):
 # ==============================
 with st.sidebar:
     st.header("⚙️ Configuración")
-    uploaded_file = st.file_uploader("📂 Cargar Excel", type=["xlsx"])
-    num_vehicles = st.slider("🚚 Vehículos", 1, 5, 2)
+    uploaded_file = st.file_uploader("📂 Cargar clientes (Excel)")
+    num_vehicles = st.slider("🚚 Número de vehículos", 1, 5, 2)
     optimizar = st.button("🚀 Optimizar rutas")
 
 # ==============================
@@ -139,8 +148,14 @@ st.title("🚚 Optimización de Rutas")
 # ==============================
 # 9. LÓGICA
 # ==============================
+FILE_PATH = "clientes.xlsx"
+
+df = pd.read_excel(FILE_PATH)
+
 if uploaded_file:
     df = pd.read_excel(uploaded_file)
+    df.to_excel(FILE_PATH, index=False)
+    st.success("Clientes actualizados")
     #st.write("📊 DATA REAL:")
     #st.dataframe(df)
 
@@ -170,12 +185,13 @@ if uploaded_file:
 # LIMPIAR TEXTO
 # -------------------------------
     df["dia"] = (
-        df["dia"]
-        .astype(str)
+       df["dia"]
+       .astype(str)
         .str.strip()
         .str.lower()
 )
-
+    
+    
     # quitar tildes
     import unicodedata
 
@@ -207,6 +223,10 @@ if uploaded_file:
 # -------------------------------
 # SELECT
 # -------------------------------
+    df["dia"] = df["dia"].astype(str).str.strip().str.lower()
+
+    dias = df["dia"].unique()
+    
     dia_seleccionado = st.selectbox("Selecciona el día", dias)
 
     df_dia = df[df["dia"] == dia_seleccionado]
@@ -224,6 +244,7 @@ if uploaded_file:
     time_windows = [(0, 1440)] + time_windows
 
     if optimizar:
+        st.success("✅ Rutas optimizadas correctamente")
         st.session_state.optimizado = True
 
     if st.session_state.optimizado:
@@ -296,7 +317,10 @@ with st.form("nuevo_cliente"):
 # ==============================
 if "routes" in st.session_state:
 
-    st.markdown("## 🚚 Rutas optimizadas")
+    st.markdown("""
+# 🚚 Optimización de Rutas Logísticas
+Optimiza entregas, reduce tiempos y mejora la eficiencia operativa.
+""")
 
     for v, route in enumerate(st.session_state.routes):
 
@@ -328,3 +352,5 @@ if "routes" in st.session_state:
             f,
             file_name="rutas.pdf"
         )
+
+st.caption("Desarrollado por Jeison Villamil 🚀")
