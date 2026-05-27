@@ -150,7 +150,10 @@ st.title("🚚 Optimización de Rutas")
 # ==============================
 FILE_PATH = "clientes.xlsx"
 
-df = pd.read_excel(FILE_PATH)
+if os.path.exists(FILE_PATH):
+    df = pd.read_excel(FILE_PATH)
+else:
+    df = pd.DataFrame()
 
 if uploaded_file:
     df = pd.read_excel(uploaded_file)
