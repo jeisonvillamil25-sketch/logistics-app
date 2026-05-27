@@ -235,7 +235,8 @@ if uploaded_file:
     df_dia = df[df["dia"] == dia_seleccionado]
 
     locations = df_dia["direccion"].tolist()
-
+    MAX_CLIENTES = 15
+    locations = locations[:MAX_CLIENTES]
     time_windows = []
     for i in range(len(df_dia)):
         start = convert_time_to_minutes(df_dia.iloc[i]["hora inicio"])
@@ -245,7 +246,9 @@ if uploaded_file:
     warehouse = "51 Nelson Rd, Yennora NSW 2161, Australia"
     locations = [warehouse] + locations
     time_windows = [(0, 1440)] + time_windows
-
+    
+    if len(df_dia) > MAX_CLIENTES:
+        st.warning(f"⚠️ Solo se procesarán {MAX_CLIENTES} clientes")
     if optimizar:
         st.success("✅ Rutas optimizadas correctamente")
         st.session_state.optimizado = True
