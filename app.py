@@ -150,10 +150,7 @@ st.title("🚚 Optimización de Rutas")
 # ==============================
 FILE_PATH = "clientes.xlsx"
 
-if os.path.exists(FILE_PATH):
-    df = pd.read_excel(FILE_PATH)
-else:
-    df = pd.DataFrame()
+df = pd.read_excel(FILE_PATH)
 
 if uploaded_file:
     df = pd.read_excel(uploaded_file)
@@ -235,30 +232,22 @@ if uploaded_file:
     df_dia = df[df["dia"] == dia_seleccionado]
 
     locations = df_dia["direccion"].tolist()
-    MAX_CLIENTES = 10
-    locations = locations[:MAX_CLIENTES]
+
     time_windows = []
     for i in range(len(df_dia)):
         start = convert_time_to_minutes(df_dia.iloc[i]["hora inicio"])
         end = convert_time_to_minutes(df_dia.iloc[i]["hora fin"])
         time_windows.append((start, end))
-        
-    if len(df_dia) > MAX_CLIENTES:
-        st.warning(f"⚠️ Solo se procesarán {MAX_CLIENTES} clientes")
+
     warehouse = "51 Nelson Rd, Yennora NSW 2161, Australia"
     locations = [warehouse] + locations
     time_windows = [(0, 1440)] + time_windows
-    
-    
 
     if optimizar:
         st.success("✅ Rutas optimizadas correctamente")
         st.session_state.optimizado = True
 
     if st.session_state.optimizado:
-        st.write("TOTAL LOCATIONS:", len(locations))
-        st.write(locations)
-    
         distance_matrix = get_distance_matrix(locations)
         routes = optimize_routes(distance_matrix, time_windows, num_vehicles)
 
@@ -365,4 +354,3 @@ Optimiza entregas, reduce tiempos y mejora la eficiencia operativa.
         )
 
 st.caption("Desarrollado por Jeison Villamil 🚀")
-)
