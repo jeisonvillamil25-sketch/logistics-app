@@ -235,7 +235,7 @@ if uploaded_file:
     df_dia = df[df["dia"] == dia_seleccionado]
 
     locations = df_dia["direccion"].tolist()
-    MAX_CLIENTES = 15
+    MAX_CLIENTES = 10
     locations = locations[:MAX_CLIENTES]
     time_windows = []
     for i in range(len(df_dia)):
