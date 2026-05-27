@@ -256,7 +256,7 @@ if uploaded_file:
     if st.session_state.optimizado:
         st.write("TOTAL LOCATIONS:", len(locations))
         st.write(locations)
-        valid_locations = []
+    valid_locations = []
 
     for loc in locations:
         try:
