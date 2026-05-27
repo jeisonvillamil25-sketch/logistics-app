@@ -263,7 +263,7 @@ if uploaded_file:
             #result = gmaps.geocode(loc)
 
             #if result:
-                valid_locations.append(loc)
+                #valid_locations.append(loc)
             #else:
                 #st.warning(f"⚠️ Dirección inválida: {loc}")
 
