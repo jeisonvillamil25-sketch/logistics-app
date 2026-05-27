@@ -242,7 +242,7 @@ if uploaded_file:
         start = convert_time_to_minutes(df_dia.iloc[i]["hora inicio"])
         end = convert_time_to_minutes(df_dia.iloc[i]["hora fin"])
         time_windows.append((start, end))
-    if len(df_dia) > MAX_CLIENTES:
+    if len(df_dia) > MAX_CLIENTES:10
         st.warning(f"⚠️ Solo se procesarán {MAX_CLIENTES} clientes")
     warehouse = "51 Nelson Rd, Yennora NSW 2161, Australia"
     locations = [warehouse] + locations
