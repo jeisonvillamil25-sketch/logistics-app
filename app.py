@@ -256,21 +256,21 @@ if uploaded_file:
     if st.session_state.optimizado:
         st.write("TOTAL LOCATIONS:", len(locations))
         st.write(locations)
-    valid_locations = []
+    #valid_locations = []
 
-    for loc in locations:
-        try:
-            result = gmaps.geocode(loc)
+    #for loc in locations:
+        #try:
+            #result = gmaps.geocode(loc)
 
-            if result:
+            #if result:
                 valid_locations.append(loc)
-            else:
-                st.warning(f"⚠️ Dirección inválida: {loc}")
+            #else:
+                #st.warning(f"⚠️ Dirección inválida: {loc}")
 
-        except Exception as e:
-            st.warning(f"⚠️ Error con dirección: {loc}")
+        #except Exception as e:
+            #st.warning(f"⚠️ Error con dirección: {loc}")
 
-        locations = valid_locations
+        #locations = valid_locations
         distance_matrix = get_distance_matrix(locations)
         routes = optimize_routes(distance_matrix, time_windows, num_vehicles)
 
